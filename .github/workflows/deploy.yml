@@ -28,13 +28,18 @@ jobs:
           username: ec2-user
           key: ${{ secrets.EC2_SSH_KEY }}
           script: |
-            # Limpiar versiones anteriores para forzar el refresco de variables
+            # 1. Detener y borrar el contenedor actual
             sudo docker stop front-app || true
             sudo docker rm front-app || true
-            sudo docker image rm ${{ secrets.DOCKER_USERNAME }}/innovatech-front:latest || true
             
-            # Bajar la versión nueva
+            # 2. BORRAR la imagen local para obligar a AWS a bajar la nueva de Docker Hub
+            sudo docker rmi ${{ secrets.DOCKER_USERNAME }}/innovatech-front:latest || true
+            
+            # 3. Limpieza de sistema (borra todo lo que no se use)
+            sudo docker system prune -f
+            
+            # 4. Pull de la imagen fresca
             sudo docker pull ${{ secrets.DOCKER_USERNAME }}/innovatech-front:latest
             
-            # Correr con la IP del Backend de Cathi (Indicador IE7)
+            # 5. Run con la IP forzada
             sudo docker run -d --name front-app -p 80:5000 -e BACKEND_URL="http://10.0.2.62:3000" ${{ secrets.DOCKER_USERNAME }}/innovatech-front:latest
