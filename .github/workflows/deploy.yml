@@ -1,7 +1,7 @@
 name: Deploy Frontend Innovatech
 on:
   push:
-    branches: [ deploy ] # Solo se activa cuando subes algo a la rama deploy
+    branches: [ deploy ]
 
 jobs:
   build-and-push:
@@ -28,11 +28,13 @@ jobs:
           username: ec2-user
           key: ${{ secrets.EC2_SSH_KEY }}
           script: |
-            # Bajar la versión nueva de la imagen
-            sudo docker pull ${{ secrets.DOCKER_USERNAME }}/innovatech-front:latest
-            # Detener y borrar el contenedor viejo si existe
+            # Limpiar versiones anteriores para forzar el refresco de variables
             sudo docker stop front-app || true
             sudo docker rm front-app || true
-            # Correr el contenedor nuevo entregándole la IP del Backend de Cathi
+            sudo docker image rm ${{ secrets.DOCKER_USERNAME }}/innovatech-front:latest || true
+            
+            # Bajar la versión nueva
+            sudo docker pull ${{ secrets.DOCKER_USERNAME }}/innovatech-front:latest
+            
+            # Correr con la IP del Backend de Cathi (Indicador IE7)
             sudo docker run -d --name front-app -p 80:5000 -e BACKEND_URL="http://10.0.2.62:3000" ${{ secrets.DOCKER_USERNAME }}/innovatech-front:latest
-            # trigger real front
