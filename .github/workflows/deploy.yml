@@ -42,4 +42,4 @@ jobs:
             sudo docker pull ${{ secrets.DOCKER_USERNAME }}/innovatech-front:latest
             
             # 5. Run con la IP forzada
-            sudo docker run -d --name front-app -p 80:5000 -e BACKEND_URL="http://10.0.2.62:3000" ${{ secrets.DOCKER_USERNAME }}/innovatech-front:latest
+            sudo docker run -d --name front-app -p 80:5000 -e BACKEND_URL="http://10.0.1.107:3000" ${{ secrets.DOCKER_USERNAME }}/innovatech-front:latest
